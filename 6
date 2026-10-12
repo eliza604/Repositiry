@@ -1,0 +1,26 @@
+import pwm_dac
+import signal_generator as sg
+import time
+
+amplitude = 3.2
+signal_frequency = 10
+sampling_frequency = 1000
+
+try:
+    dac = pwm_dac.PWM_DAC()
+
+    t = 0.0
+    dt = 1 / sampling_frequency
+
+    while True:
+        u = amplitude * sg.get_sin_wave_amplitude(signal_frequency, t)
+        dac.set_voltage(u)
+
+        sg.wait_for_sampling_period(sampling_frequency)
+        t += dt
+
+except KeyboardInterrupt:
+    print("\nГенерация остановлена")
+
+finally:
+    dac.deinit()
