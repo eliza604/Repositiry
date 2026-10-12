@@ -1,0 +1,57 @@
+# ============================================================
+# Файл: get-dac/signal_generator.py
+# ============================================================
+import numpy as np
+import time
+
+
+def get_sin_wave_amplitude(freq, time):
+    """Нормализованная амплитуда синуса в диапазоне [0, 1]."""
+    return (np.sin(2 * np.pi * freq * time) + 1) / 2
+
+
+def get_triangle_wave_amplitude(freq, time):
+    """Нормализованная амплитуда треугольника в диапазоне [0, 1]."""
+    period = 1 / freq
+    phase = (time % period) / period      # фаза в [0, 1)
+
+    if phase < 0.5:
+        return 2 * phase                  # 0 -> 1
+    else:
+        return 2 * (1 - phase)            # 1 -> 0
+
+
+def wait_for_sampling_period(sampling_frequency):
+    """Ждёт один период дискретизации: T = 1 / sampling_frequency."""
+    time.sleep(1 / sampling_frequency)
+
+
+# ============================================================
+# Файл: get-dac/pwm-triangle.py
+# ============================================================
+import pwm_dac
+import signal_generator as sg
+import time
+
+amplitude = 3.2
+signal_frequency = 10
+sampling_frequency = 1000
+
+try:
+    dac = pwm_dac.PWM_DAC()
+
+    t = 0.0
+    dt = 1 / sampling_frequency
+
+    while True:
+        u = amplitude * sg.get_triangle_wave_amplitude(signal_frequency, t)
+        dac.set_voltage(u)
+
+        sg.wait_for_sampling_period(sampling_frequency)
+        t += dt
+
+except KeyboardInterrupt:
+    print("\nГенерация остановлена")
+
+finally:
+    dac.deinit()
