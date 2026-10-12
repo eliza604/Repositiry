@@ -1,0 +1,17 @@
+import numpy as np
+import time
+
+
+def get_sin_wave_amplitude(freq, time):
+    """Возвращает нормализованную амплитуду синуса в диапазоне [0, 1].
+
+    sin(2*pi*f*t) даёт значения от -1 до 1.
+    Сдвигаем вверх (+1): получаем от 0 до 2.
+    Делим на 2: получаем от 0 до 1.
+    """
+    return (np.sin(2 * np.pi * freq * time) + 1) / 2
+
+
+def wait_for_sampling_period(sampling_frequency):
+    """Ждёт один период дискретизации: T = 1 / sampling_frequency."""
+    time.sleep(1 / sampling_frequency)
